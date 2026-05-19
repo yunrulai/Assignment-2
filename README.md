@@ -30,7 +30,7 @@ Default seeded admin login:
 ## Database Schema
 
 ### 1. **USERS Table**
-**New Fields Added:**
+**Fields Added:**
 - `username` (NVARCHAR(100), UNIQUE) - Required for login/registration
 - `password_hash` (renamed from `password`) - Stores bcrypt hashed passwords
 
@@ -51,7 +51,7 @@ id (PK), product_name, description, price, stock_quantity, created_at
 ```
 
 ### 3. **ORDERS Table**
-**New Fields Added:**
+**Fields Added:**
 - `order_date` (DATETIME) - When order was placed
 - `total_amount` (DECIMAL) - Total order value
 - `status` (NVARCHAR(50)) - Order status (Pending, Confirmed, Shipped, Delivered, Cancelled)
@@ -62,7 +62,7 @@ id (PK), user_id (FK), order_date, total_amount, status, created_at
 ```
 
 ### 4. **ORDER_ITEMS Table**
-**New Fields Added:**
+**Fields Added:**
 - `subtotal` (DECIMAL) - Item line subtotal (price × quantity)
 
 **Schema:**
@@ -70,8 +70,8 @@ id (PK), user_id (FK), order_date, total_amount, status, created_at
 id (PK), order_id (FK), product_id (FK), quantity, subtotal
 ```
 
-### 5. **PAYMENTS Table** ✨ NEW
-**New Complete Table:**
+### 5. **PAYMENTS Table** 
+**Complete Table:**
 - Tracks all payment transactions
 - Links orders to payment records
 - Stores payment method and status
@@ -126,8 +126,8 @@ GET    /api/orders                - Get all orders (Admin)
 GET    /api/orders/:id            - Get order details
 ```
 
-### Payments Routes (`/api/payments`) ✨ NEW
-**New API Endpoints:**
+### Payments Routes (`/api/payments`)
+**API Endpoints:**
 ```
 POST   /api/payments                    - Create payment for order
 GET    /api/payments/order/:orderId    - Get payments for specific order
@@ -144,7 +144,7 @@ GET    /api/payments                    - Get all payments (Admin)
 2. **`server/routes/auth.js`** - Updated for username + password_hash
 3. **`server/routes/orders.js`** - Total amount calculation, subtotal tracking
 4. **`server/routes/products.js`** - Updated field names
-5. **`server/routes/payments.js`** ✨ NEW - Complete payment management
+5. **`server/routes/payments.js`** - Complete payment management
 
 ---
 
@@ -196,11 +196,11 @@ GET    /api/payments                    - Get all payments (Admin)
 | Products Name | `name` | `product_name` |
 | Products Stock | `stock` | `stock_quantity` |
 | User Password | `password` | `password_hash` |
-| Users Display Name | N/A | `username` (new) |
-| Order Total | N/A | `total_amount` (new) |
-| Order Status | N/A | `status` (new) |
-| Item Total | N/A | `subtotal` (new) |
-| Payments | N/A | `payments` table (new) |
+| Users Display Name | N/A | `username`  |
+| Order Total | N/A | `total_amount`  |
+| Order Status | N/A | `status`  |
+| Item Total | N/A | `subtotal`  |
+| Payments | N/A | `payments` table  |
 
 ---
 
