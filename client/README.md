@@ -4,28 +4,28 @@ A modern React-based e-commerce frontend for SecureShop with authentication, pro
 
 ## Features
 
-✅ **User Authentication**
+**User Authentication**
 - Registration with username, email, password
 - Login with email/password
 - JWT token-based session management
 
-✅ **Product Browsing**
+**Product Browsing**
 - View all available products with descriptions
 - Real-time stock status
 - Easy add to cart functionality
 
-✅ **Shopping Cart**
+**Shopping Cart**
 - Add/remove items
 - Adjust quantities
 - Multiple payment methods support
 - Order total calculation
 
-✅ **Order Management**
+**Order Management**
 - View order history
 - Track order status (Pending, Confirmed, Shipped, Delivered)
 - Detailed order items with subtotals
 
-✅ **Admin Panel** (for admin users)
+**Admin Panel** (for admin users)
 - Add/delete products
 - View all orders
 - Manage payments and payment status
