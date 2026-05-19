@@ -8,7 +8,7 @@ const requireRole = auth.requireRole;
 router.get('/', async (req, res) => {
   try {
     const pool = await getPool();
-    const result = await pool.request().query('SELECT id, name, description, price, stock FROM products ORDER BY id DESC');
+    const result = await pool.request().query('SELECT id, product_name, description, price, stock_quantity, created_at FROM products ORDER BY id DESC');
     res.json(result.recordset);
   } catch (err) {
     console.error(err);
@@ -22,7 +22,7 @@ router.get('/:id', async (req, res) => {
     const pool = await getPool();
     const result = await pool.request()
       .input('id', req.params.id)
-      .query('SELECT TOP 1 id, name, description, price, stock FROM products WHERE id = @id');
+      .query('SELECT TOP 1 id, product_name, description, price, stock_quantity, created_at FROM products WHERE id = @id');
 
     if (result.recordset.length === 0) {
       return res.status(404).json({ error: 'product not found' });
@@ -37,20 +37,20 @@ router.get('/:id', async (req, res) => {
 
 // Create product
 router.post('/', auth, requireRole('Admin'), async (req, res) => {
-  const { name, description = '', price, stock = 0 } = req.body;
+  const { product_name, description = '', price, stock_quantity = 0 } = req.body;
 
-  if (!name || price === undefined) {
-    return res.status(400).json({ error: 'name and price required' });
+  if (!product_name || price === undefined) {
+    return res.status(400).json({ error: 'product_name and price required' });
   }
 
   try {
     const pool = await getPool();
     const result = await pool.request()
-      .input('name', name)
+      .input('product_name', product_name)
       .input('description', description)
       .input('price', price)
-      .input('stock', stock)
-      .query("INSERT INTO products (name, description, price, stock) OUTPUT INSERTED.id, INSERTED.name, INSERTED.description, INSERTED.price, INSERTED.stock VALUES (@name, @description, @price, @stock)");
+      .input('stock_quantity', stock_quantity)
+      .query("INSERT INTO products (product_name, description, price, stock_quantity) OUTPUT INSERTED.id, INSERTED.product_name, INSERTED.description, INSERTED.price, INSERTED.stock_quantity, INSERTED.created_at VALUES (@product_name, @description, @price, @stock_quantity)");
 
     res.status(201).json(result.recordset[0]);
   } catch (err) {
@@ -61,27 +61,27 @@ router.post('/', auth, requireRole('Admin'), async (req, res) => {
 
 // Update product
 router.put('/:id', auth, requireRole('Admin'), async (req, res) => {
-  const { name, description, price, stock } = req.body;
+  const { product_name, description, price, stock_quantity } = req.body;
   const normalizedDescription = description === undefined ? null : description;
   const normalizedPrice = price === undefined ? null : price;
-  const normalizedStock = stock === undefined ? null : stock;
+  const normalizedStockQuantity = stock_quantity === undefined ? null : stock_quantity;
 
   try {
     const pool = await getPool();
     const result = await pool.request()
       .input('id', req.params.id)
-      .input('name', name)
+      .input('product_name', product_name)
       .input('description', normalizedDescription)
       .input('price', normalizedPrice)
-      .input('stock', normalizedStock)
+      .input('stock_quantity', normalizedStockQuantity)
       .query(`
         UPDATE products
         SET
-          name = COALESCE(@name, name),
+          product_name = COALESCE(@product_name, product_name),
           description = COALESCE(@description, description),
           price = COALESCE(@price, price),
-          stock = COALESCE(@stock, stock)
-        OUTPUT INSERTED.id, INSERTED.name, INSERTED.description, INSERTED.price, INSERTED.stock
+          stock_quantity = COALESCE(@stock_quantity, stock_quantity)
+        OUTPUT INSERTED.id, INSERTED.product_name, INSERTED.description, INSERTED.price, INSERTED.stock_quantity, INSERTED.created_at
         WHERE id = @id
       `);
 

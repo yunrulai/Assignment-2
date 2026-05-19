@@ -19,13 +19,10 @@ router.post('/', auth, async (req, res) => {
     await transaction.begin(sql.ISOLATION_LEVEL.READ_COMMITTED);
 
     try {
-      const orderRequest = new sql.Request(transaction);
-      const orderInsert = await orderRequest
-        .input('userId', userId)
-        .query("INSERT INTO orders (user_id) OUTPUT INSERTED.id, INSERTED.user_id, INSERTED.created_at VALUES (@userId)");
-
-      const order = orderInsert.recordset[0];
-
+      let totalAmount = 0;
+      
+      // Validate all items and calculate total first
+      const validatedItems = [];
       for (const item of items) {
         const productId = Number(item.productId);
         const quantity = Number(item.quantity || item.qty || 1);
@@ -37,33 +34,51 @@ router.post('/', auth, async (req, res) => {
         const productLookup = new sql.Request(transaction);
         const productResult = await productLookup
           .input('productId', productId)
-          .query('SELECT TOP 1 id, price, stock FROM products WHERE id = @productId');
+          .query('SELECT TOP 1 id, price, stock_quantity FROM products WHERE id = @productId');
 
         const product = productResult.recordset[0];
         if (!product) {
           throw new Error(`product ${productId} not found`);
         }
 
-        if (product.stock < quantity) {
+        if (product.stock_quantity < quantity) {
           throw new Error(`insufficient stock for product ${productId}`);
         }
 
+        const subtotal = product.price * quantity;
+        totalAmount += subtotal;
+        validatedItems.push({ productId, quantity, price: product.price, subtotal });
+      }
+
+      // Create order with total_amount
+      const orderRequest = new sql.Request(transaction);
+      const orderInsert = await orderRequest
+        .input('userId', userId)
+        .input('totalAmount', totalAmount)
+        .input('status', 'Pending')
+        .query("INSERT INTO orders (user_id, total_amount, status) OUTPUT INSERTED.id, INSERTED.user_id, INSERTED.total_amount, INSERTED.status, INSERTED.created_at VALUES (@userId, @totalAmount, @status)");
+
+      const order = orderInsert.recordset[0];
+
+      // Add order items with subtotal
+      for (const item of validatedItems) {
         const itemRequest = new sql.Request(transaction);
         await itemRequest
           .input('orderId', order.id)
-          .input('productId', productId)
-          .input('quantity', quantity)
-          .query('INSERT INTO order_items (order_id, product_id, quantity) VALUES (@orderId, @productId, @quantity)');
+          .input('productId', item.productId)
+          .input('quantity', item.quantity)
+          .input('subtotal', item.subtotal)
+          .query('INSERT INTO order_items (order_id, product_id, quantity, subtotal) VALUES (@orderId, @productId, @quantity, @subtotal)');
 
         const stockRequest = new sql.Request(transaction);
         await stockRequest
-          .input('productId', productId)
-          .input('quantity', quantity)
-          .query('UPDATE products SET stock = stock - @quantity WHERE id = @productId');
+          .input('productId', item.productId)
+          .input('quantity', item.quantity)
+          .query('UPDATE products SET stock_quantity = stock_quantity - @quantity WHERE id = @productId');
       }
 
       await transaction.commit();
-      res.status(201).json({ orderId: order.id });
+      res.status(201).json({ orderId: order.id, totalAmount: order.total_amount, status: order.status });
     } catch (err) {
       await transaction.rollback();
       throw err;
@@ -81,14 +96,14 @@ router.get('/me', auth, async (req, res) => {
     const result = await pool.request()
       .input('userId', req.user.id)
       .query(`
-        SELECT o.id, o.user_id, o.created_at,
-               oi.id AS order_item_id, oi.product_id, oi.quantity,
-               p.name AS product_name, p.price
+        SELECT o.id, o.user_id, o.order_date, o.total_amount, o.status,
+               oi.id AS order_item_id, oi.product_id, oi.quantity, oi.subtotal,
+               p.product_name, p.price
         FROM orders o
         LEFT JOIN order_items oi ON oi.order_id = o.id
         LEFT JOIN products p ON p.id = oi.product_id
         WHERE o.user_id = @userId
-        ORDER BY o.created_at DESC, oi.id ASC
+        ORDER BY o.order_date DESC, oi.id ASC
       `);
 
     res.json(result.recordset);
@@ -103,14 +118,14 @@ router.get('/', auth, requireRole('Admin'), async (req, res) => {
   try {
     const pool = await getPool();
     const result = await pool.request().query(`
-      SELECT o.id, o.user_id, u.name AS customer_name, u.email, o.created_at,
-             oi.id AS order_item_id, oi.product_id, oi.quantity,
-             p.name AS product_name, p.price
+      SELECT o.id, o.user_id, u.name AS customer_name, u.email, o.order_date, o.total_amount, o.status,
+             oi.id AS order_item_id, oi.product_id, oi.quantity, oi.subtotal,
+             p.product_name, p.price
       FROM orders o
       INNER JOIN users u ON u.id = o.user_id
       LEFT JOIN order_items oi ON oi.order_id = o.id
       LEFT JOIN products p ON p.id = oi.product_id
-      ORDER BY o.created_at DESC, oi.id ASC
+      ORDER BY o.order_date DESC, oi.id ASC
     `);
 
     res.json(result.recordset);
@@ -127,9 +142,9 @@ router.get('/:id', auth, async (req, res) => {
     const result = await pool.request()
       .input('orderId', req.params.id)
       .query(`
-        SELECT o.id, o.user_id, o.created_at,
-               oi.id AS order_item_id, oi.product_id, oi.quantity,
-               p.name AS product_name, p.price
+        SELECT o.id, o.user_id, o.order_date, o.total_amount, o.status,
+               oi.id AS order_item_id, oi.product_id, oi.quantity, oi.subtotal,
+               p.product_name, p.price
         FROM orders o
         LEFT JOIN order_items oi ON oi.order_id = o.id
         LEFT JOIN products p ON p.id = oi.product_id

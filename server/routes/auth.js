@@ -6,29 +6,34 @@ const { getPool } = require('../db/db');
 
 // Register
 router.post('/register', async (req, res) => {
-  const { name, email, password } = req.body;
+  const { username, email, password, name } = req.body;
   const normalizedEmail = String(email || '').trim().toLowerCase();
+  const trimmedUsername = String(username || '').trim();
 
-  if (!normalizedEmail || !password) {
-    return res.status(400).json({ error: 'email and password required' });
+  if (!trimmedUsername || !normalizedEmail || !password) {
+    return res.status(400).json({ error: 'username, email and password required' });
   }
 
   try {
     const hash = await bcrypt.hash(password, 10);
     const pool = await getPool();
+    
+    // Check if email or username already exists
     const existing = await pool.request()
       .input('email', normalizedEmail)
-      .query('SELECT TOP 1 id FROM users WHERE email = @email');
+      .input('username', trimmedUsername)
+      .query('SELECT TOP 1 id FROM users WHERE email = @email OR username = @username');
 
     if (existing.recordset.length > 0) {
-      return res.status(409).json({ error: 'email already exists' });
+      return res.status(409).json({ error: 'email or username already exists' });
     }
 
     const result = await pool.request()
-      .input('name', name)
+      .input('username', trimmedUsername)
       .input('email', normalizedEmail)
-      .input('password', hash)
-      .query("INSERT INTO users (name, email, password, role) OUTPUT INSERTED.id, INSERTED.name, INSERTED.email, INSERTED.role VALUES (@name, @email, @password, 'Customer')");
+      .input('password_hash', hash)
+      .input('name', name || trimmedUsername)
+      .query("INSERT INTO users (username, email, password_hash, name, role) OUTPUT INSERTED.id, INSERTED.username, INSERTED.email, INSERTED.name, INSERTED.role VALUES (@username, @email, @password_hash, @name, 'Customer')");
 
     res.status(201).json({ user: result.recordset[0] });
   } catch (err) {
@@ -50,12 +55,12 @@ router.post('/login', async (req, res) => {
     const pool = await getPool();
     const result = await pool.request()
       .input('email', normalizedEmail)
-      .query('SELECT TOP 1 id, name, email, password, role FROM users WHERE email = @email');
+      .query('SELECT TOP 1 id, username, email, password_hash, name, role FROM users WHERE email = @email');
 
     const user = result.recordset[0];
     if (!user) return res.status(401).json({ error: 'invalid credentials' });
 
-    const valid = await bcrypt.compare(password, user.password);
+    const valid = await bcrypt.compare(password, user.password_hash);
     if (!valid) return res.status(401).json({ error: 'invalid credentials' });
 
     const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET || 'changeme', { expiresIn: '8h' });
@@ -63,8 +68,9 @@ router.post('/login', async (req, res) => {
       token,
       user: {
         id: user.id,
-        name: user.name,
+        username: user.username,
         email: user.email,
+        name: user.name,
         role: user.role
       }
     });
