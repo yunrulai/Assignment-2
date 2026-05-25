@@ -1,0 +1,31 @@
+--open symmetric key CreditCardKey decryption by certificate CreditCardCer
+
+Decrypt and view query
+/*SELECT 
+    CONVERT(varchar(100), DecryptByKey(credit_card_num)) AS DecryptedValue
+FROM payments;*/
+
+Select payment table query
+--select * from payments
+
+Convert binary to varchar query
+--SELECT CONVERT(VARCHAR(20),credit_card_num ) from payments;
+
+Multi user mode
+/*ALTER DATABASE SecureShopDB
+SET MULTI_USER;*/
+
+Single user mode
+/*ALTER DATABASE SecureShopDB
+SET SINGLE_USER;*/
+
+Restore Query
+/*RESTORE DATABASE SecureShopDB
+FROM DISK = 'C:\Program Files\Microsoft SQL Server\MSSQL16.MSSQLSERVER\MSSQL\Backup\Secure_shop230526.bak'
+WITH REPLACE;
+GO*/
+
+Grant permission from sysadmin to user
+GRANT CONTROL
+ON SYMMETRIC KEY::CreditCardKey
+TO admin_user;
