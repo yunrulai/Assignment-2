@@ -320,22 +320,21 @@ resource "aws_wafv2_web_acl" "secureshop" {
 
 # ---------------------------------------------------------------------------
 # Attach Web ACL to Member 2's Application Load Balancer
-# Member 2 should export their ALB ARN as output "alb_arn".
-# This association is defined here so Member 3 owns the WAF attachment.
-#
-# To avoid circular dependencies, we use a data source to discover the ALB
-# by name tag.  Replace "SecureShop-ALB" with Member 2's actual ALB name.
+# ISOLATED DEMO: these two blocks are commented out so this module can be
+# applied in a standalone sandbox without Member 2's ALB present.
+# Un-comment for the integrated (full-team) deployment.
 # ---------------------------------------------------------------------------
-data "aws_lb" "app" {
-  tags = {
-    Name = "SecureShop-ALB" # match the tag Member 2 sets on their ALB
-  }
-}
 
-resource "aws_wafv2_web_acl_association" "alb" {
-  resource_arn = data.aws_lb.app.arn
-  web_acl_arn  = aws_wafv2_web_acl.secureshop.arn
-}
+# data "aws_lb" "app" {
+#   tags = {
+#     Name = "SecureShop-ALB" # match the tag Member 2 sets on their ALB
+#   }
+# }
+
+# resource "aws_wafv2_web_acl_association" "alb" {
+#   resource_arn = data.aws_lb.app.arn
+#   web_acl_arn  = aws_wafv2_web_acl.secureshop.arn
+# }
 
 # ---------------------------------------------------------------------------
 # Logging configuration – send WAF logs to CloudWatch Logs

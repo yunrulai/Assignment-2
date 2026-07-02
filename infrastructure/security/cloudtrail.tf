@@ -69,8 +69,8 @@ resource "aws_s3_bucket_lifecycle_configuration" "cloudtrail_logs" {
 
 # ---------------------------------------------------------------------------
 # Bucket policy – grants CloudTrail service permission to write logs
+# (aws_caller_identity.current is declared once in providers.tf)
 # ---------------------------------------------------------------------------
-data "aws_caller_identity" "current" {}
 
 resource "aws_s3_bucket_policy" "cloudtrail_logs" {
   bucket = aws_s3_bucket.cloudtrail_logs.id

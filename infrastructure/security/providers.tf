@@ -53,3 +53,11 @@ variable "aws_region" {
   type        = string
   default     = "us-east-1"
 }
+
+# ---------------------------------------------------------------------------
+# Shared data sources – used by multiple files in this module.
+# Declared here (once) to avoid duplicate-resource errors.
+# ---------------------------------------------------------------------------
+data "aws_region" "current" {}
+
+data "aws_caller_identity" "current" {}

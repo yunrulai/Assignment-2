@@ -84,38 +84,39 @@ resource "aws_acm_certificate_validation" "secureshop" {
 
 # ---------------------------------------------------------------------------
 # Route 53 – Alias record to Member 2's ALB (optional)
-# Creates a human-friendly DNS name pointing at the ALB.
+# ISOLATED DEMO: these records reference data.aws_lb.app which does not exist
+# in a standalone sandbox. They are commented out here.
+# Un-comment for the integrated (full-team) deployment.
 # ---------------------------------------------------------------------------
-data "aws_region" "current" {}
 
-resource "aws_route53_record" "app_alias" {
-  count = var.hosted_zone_id != "" ? 1 : 0
+# resource "aws_route53_record" "app_alias" {
+#   count = var.hosted_zone_id != "" ? 1 : 0
+#
+#   zone_id = var.hosted_zone_id
+#   name    = var.domain_name
+#   type    = "A"
+#
+#   alias {
+#     name                   = data.aws_lb.app.dns_name
+#     zone_id                = data.aws_lb.app.zone_id
+#     evaluate_target_health = true
+#   }
+# }
 
-  zone_id = var.hosted_zone_id
-  name    = var.domain_name
-  type    = "A"
-
-  alias {
-    name                   = data.aws_lb.app.dns_name
-    zone_id                = data.aws_lb.app.zone_id
-    evaluate_target_health = true
-  }
-}
-
-# www → apex alias
-resource "aws_route53_record" "app_www_alias" {
-  count = var.hosted_zone_id != "" ? 1 : 0
-
-  zone_id = var.hosted_zone_id
-  name    = "www.${var.domain_name}"
-  type    = "A"
-
-  alias {
-    name                   = data.aws_lb.app.dns_name
-    zone_id                = data.aws_lb.app.zone_id
-    evaluate_target_health = true
-  }
-}
+# # www → apex alias
+# resource "aws_route53_record" "app_www_alias" {
+#   count = var.hosted_zone_id != "" ? 1 : 0
+#
+#   zone_id = var.hosted_zone_id
+#   name    = "www.${var.domain_name}"
+#   type    = "A"
+#
+#   alias {
+#     name                   = data.aws_lb.app.dns_name
+#     zone_id                = data.aws_lb.app.zone_id
+#     evaluate_target_health = true
+#   }
+# }
 
 # ---------------------------------------------------------------------------
 # Outputs
@@ -137,6 +138,6 @@ output "acm_domain_validation_options" {
 }
 
 output "route53_app_fqdn" {
-  description = "FQDN of the A-alias record pointing to the ALB (empty when hosted_zone_id is not set)"
-  value       = var.hosted_zone_id != "" ? aws_route53_record.app_alias[0].fqdn : "N/A – set hosted_zone_id to enable"
+  description = "FQDN of the A-alias record pointing to the ALB (disabled in isolated demo; re-enable Route 53 alias blocks for integrated deployment)"
+  value       = "N/A – Route 53 alias records disabled for isolated demo deployment"
 }

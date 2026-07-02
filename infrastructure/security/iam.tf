@@ -38,26 +38,32 @@ resource "aws_iam_instance_profile" "lab_instance_profile" {
 # Replace the "id" filter values with the actual instance IDs once
 # Member 2 has applied their configuration.
 # ---------------------------------------------------------------------------
-data "aws_instance" "app_server" {
-  filter {
-    name   = "tag:Name"
-    values = ["AppServer"] # Member 2's EC2 instance tag
-  }
+# ISOLATED DEMO: The EC2 data source and profile association below depend on
+# Member 2's instance being present. They are commented out so this module
+# deploys cleanly in a standalone sandbox.
+# Un-comment for the integrated (full-team) deployment.
+# ---------------------------------------------------------------------------
 
-  filter {
-    name   = "instance-state-name"
-    values = ["running", "stopped"]
-  }
-}
+# data "aws_instance" "app_server" {
+#   filter {
+#     name   = "tag:Name"
+#     values = ["AppServer"] # Member 2's EC2 instance tag
+#   }
+#
+#   filter {
+#     name   = "instance-state-name"
+#     values = ["running", "stopped"]
+#   }
+# }
 
 # Attach the profile to the running EC2 instance
 # NOTE: aws_iam_instance_profile_association requires the instance to exist
 #       and the profile to be created first.  Run `terraform apply` after
 #       Member 2 has deployed their instances.
-resource "aws_iam_instance_profile_association" "app_server_profile" {
-  instance_id  = data.aws_instance.app_server.id
-  iam_arn      = aws_iam_instance_profile.lab_instance_profile.arn
-}
+# resource "aws_iam_instance_profile_association" "app_server_profile" {
+#   instance_id  = data.aws_instance.app_server.id
+#   iam_arn      = aws_iam_instance_profile.lab_instance_profile.arn
+# }
 
 # ---------------------------------------------------------------------------
 # Outputs – consumed by other members and the CI pipeline
