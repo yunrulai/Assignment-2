@@ -1,5 +1,5 @@
 # =============================================================================
-# Member 3 – Security Module Outputs
+# Security Module Outputs
 # Purpose : Consolidate all cross-module outputs in one place so Member 1
 #           (VPC) and Member 2 (Servers) can copy-paste the values they need.
 # =============================================================================

@@ -1,5 +1,5 @@
 # =============================================================================
-# Member 3 – IAM Role Attachment
+# IAM Role Attachment
 # Purpose : Import the pre-existing "LabRole" (AWS Academy sandbox) and
 #           attach it to Member 2's EC2 instances via an instance profile.
 #           Role CREATION is intentionally omitted – sandbox policies forbid

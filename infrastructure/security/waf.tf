@@ -1,5 +1,5 @@
 # =============================================================================
-# Member 3 – AWS WAF v2
+# AWS WAF v2
 # Purpose : Deploy a Regional Web ACL with managed rules that block SQL
 #           Injection and Cross-Site Scripting (XSS), plus rate limiting.
 #           The WAF ARN is exported so Member 2 can attach it to their ALB.

@@ -1,5 +1,5 @@
 # =============================================================================
-# Member 3 – ACM (AWS Certificate Manager) + Route 53 (optional)
+# ACM (AWS Certificate Manager) + Route 53 (optional)
 # Purpose : Request an ACM public certificate for HTTPS on the ALB and,
 #           optionally, configure Route 53 DNS validation records and an
 #           alias record pointing to Member 2's ALB.
