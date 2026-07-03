@@ -1,5 +1,5 @@
 # =============================================================================
-# Member 3 – Terraform Provider & Backend Configuration
+# Terraform Provider & Backend Configuration
 # Purpose : Pin provider versions and configure the AWS provider for the
 #           us-east-1 region (AWS Academy default).
 #           A local state backend is used; switch to S3 backend in production.

@@ -1,5 +1,5 @@
 # =============================================================================
-# Member 3 – CloudTrail Logging
+# CloudTrail Logging
 # Purpose : Enable AWS CloudTrail to record all management (control-plane)
 #           events and persist them to a dedicated S3 bucket with server-side
 #           encryption and a bucket policy that permits CloudTrail writes.
@@ -148,9 +148,9 @@ resource "aws_s3_bucket_policy" "cloudtrail_logs" {
 resource "aws_cloudtrail" "secureshop" {
   name                          = "secureshop-management-trail"
   s3_bucket_name                = data.aws_s3_bucket.cloudtrail_logs.id
-  include_global_service_events = true  # capture IAM, STS, etc.
-  is_multi_region_trail         = true  # catch activity in every region
-  enable_log_file_validation    = true  # SHA-256 digest for tamper detection
+  include_global_service_events = true # capture IAM, STS, etc.
+  is_multi_region_trail         = true # catch activity in every region
+  enable_log_file_validation    = true # SHA-256 digest for tamper detection
 
   # Log all management events (Read + Write)
   event_selector {

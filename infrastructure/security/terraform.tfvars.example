@@ -1,4 +1,4 @@
-# Member 3 – Terraform variable values
+# Terraform variable values
 # Copy this file to terraform.tfvars and fill in real values before running.
 # NEVER commit terraform.tfvars with real credentials to source control.
 

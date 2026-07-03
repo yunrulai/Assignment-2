@@ -1,5 +1,5 @@
 # =============================================================================
-# Member 3 – CloudWatch Monitoring
+# CloudWatch Monitoring
 # Purpose : Create a CloudWatch Log Group, metric filters that parse
 #           CloudTrail logs for suspicious events, and alarms that alert via
 #           SNS when those metrics breach thresholds.
@@ -212,8 +212,8 @@ resource "aws_cloudwatch_dashboard" "security" {
         width  = 8
         height = 6
         properties = {
-          title   = "Unauthorized API Calls"
-          region  = var.aws_region
+          title  = "Unauthorized API Calls"
+          region = var.aws_region
           metrics = [
             ["SecureShop/Security", "UnauthorizedAPICallCount"]
           ]
@@ -229,8 +229,8 @@ resource "aws_cloudwatch_dashboard" "security" {
         width  = 8
         height = 6
         properties = {
-          title   = "Root Account Usage"
-          region  = var.aws_region
+          title  = "Root Account Usage"
+          region = var.aws_region
           metrics = [
             ["SecureShop/Security", "RootAccountUsageCount"]
           ]
@@ -246,8 +246,8 @@ resource "aws_cloudwatch_dashboard" "security" {
         width  = 8
         height = 6
         properties = {
-          title   = "Console Login Failures"
-          region  = var.aws_region
+          title  = "Console Login Failures"
+          region = var.aws_region
           metrics = [
             ["SecureShop/Security", "ConsoleLoginFailureCount"]
           ]
