@@ -28,17 +28,18 @@ variable "hosted_zone_id" {
 # ACM Certificate
 # ---------------------------------------------------------------------------
 resource "aws_acm_certificate" "secureshop" {
+  # AWS Academy lab_policy blocks acm:RequestCertificate for awsstudent.
+  # Set count = 1 and supply a real domain when running in a full AWS account.
+  count = 0
+
   domain_name               = var.domain_name
   subject_alternative_names = ["www.${var.domain_name}"]
   validation_method         = "DNS"
 
-  # Enable certificate transparency logging
   options {
     certificate_transparency_logging_preference = "ENABLED"
   }
 
-  # Lifecycle rule: create a replacement cert before destroying the old one
-  # to avoid ALB downtime during renewal.
   lifecycle {
     create_before_destroy = true
   }
@@ -56,15 +57,8 @@ resource "aws_acm_certificate" "secureshop" {
 # Only created when hosted_zone_id is set.
 # ---------------------------------------------------------------------------
 resource "aws_route53_record" "cert_validation" {
-  # One record per domain_validation_option (covers main domain + SANs)
-  for_each = var.hosted_zone_id != "" ? {
-    for dvo in aws_acm_certificate.secureshop.domain_validation_options :
-    dvo.domain_name => {
-      name   = dvo.resource_record_name
-      record = dvo.resource_record_value
-      type   = dvo.resource_record_type
-    }
-  } : {}
+  # Disabled – depends on aws_acm_certificate.secureshop which has count = 0
+  for_each = {}
 
   name            = each.value.name
   records         = [each.value.record]
@@ -74,12 +68,11 @@ resource "aws_route53_record" "cert_validation" {
   allow_overwrite = true
 }
 
-# Wait for validation to complete (used as a dependency by the ALB listener)
 resource "aws_acm_certificate_validation" "secureshop" {
-  count = var.hosted_zone_id != "" ? 1 : 0
+  count = 0
 
-  certificate_arn         = aws_acm_certificate.secureshop.arn
-  validation_record_fqdns = [for record in aws_route53_record.cert_validation : record.fqdn]
+  certificate_arn         = ""
+  validation_record_fqdns = []
 }
 
 # ---------------------------------------------------------------------------
@@ -123,17 +116,17 @@ resource "aws_acm_certificate_validation" "secureshop" {
 # ---------------------------------------------------------------------------
 output "acm_certificate_arn" {
   description = "ARN of the ACM certificate – attach this to Member 2's HTTPS listener"
-  value       = aws_acm_certificate.secureshop.arn
+  value       = "N/A – ACM skipped (Academy lab_policy blocks acm:RequestCertificate)"
 }
 
 output "acm_certificate_status" {
   description = "Current validation status of the certificate"
-  value       = aws_acm_certificate.secureshop.status
+  value       = "N/A – ACM skipped in Academy lab"
 }
 
 output "acm_domain_validation_options" {
   description = "DNS records required for domain validation (if not using Route 53)"
-  value       = aws_acm_certificate.secureshop.domain_validation_options
+  value       = []
   sensitive   = false
 }
 

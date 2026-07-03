@@ -15,19 +15,11 @@ data "aws_iam_role" "lab_role" {
 
 # ---------------------------------------------------------------------------
 # Instance Profile wrapping LabRole
-# The profile is what EC2 actually uses; the raw role cannot be attached
-# directly to an instance.
+# NOTE: AWS Academy pre-creates LabInstanceProfile; iam:CreateInstanceProfile
+# is blocked by lab_policy. We use a data source to look it up instead.
 # ---------------------------------------------------------------------------
-resource "aws_iam_instance_profile" "lab_instance_profile" {
+data "aws_iam_instance_profile" "lab_instance_profile" {
   name = "LabInstanceProfile"
-  role = data.aws_iam_role.lab_role.name
-
-  tags = {
-    Name        = "LabInstanceProfile"
-    ManagedBy   = "Terraform"
-    Owner       = "Member3"
-    Assignment  = "Assignment2"
-  }
 }
 
 # ---------------------------------------------------------------------------
@@ -75,10 +67,10 @@ output "lab_role_arn" {
 
 output "lab_instance_profile_arn" {
   description = "ARN of the instance profile wrapping LabRole"
-  value       = aws_iam_instance_profile.lab_instance_profile.arn
+  value       = data.aws_iam_instance_profile.lab_instance_profile.arn
 }
 
 output "lab_instance_profile_name" {
   description = "Name of the instance profile (used by Member 2 when launching EC2)"
-  value       = aws_iam_instance_profile.lab_instance_profile.name
+  value       = data.aws_iam_instance_profile.lab_instance_profile.name
 }

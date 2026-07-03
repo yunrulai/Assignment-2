@@ -12,14 +12,17 @@
 # IP Set – allow-list for internal / admin CIDRs (optional, extend as needed)
 # ---------------------------------------------------------------------------
 resource "aws_wafv2_ip_set" "admin_allowlist" {
+  # awsstudent is permanently denied wafv2:CreateIPSet by Academy lab_policy.
+  # Create via AWS Console (LabRole has WAF permissions), then import.
+  count = 0
+
   name               = "secureshop-admin-allowlist"
   scope              = "REGIONAL"
   ip_address_version = "IPV4"
 
-  # Replace with your actual admin IP ranges
   addresses = [
-    "10.0.0.0/8",    # VPC internal
-    "172.16.0.0/12"  # private address space
+    "10.0.0.0/8",
+    "172.16.0.0/12"
   ]
 
   tags = {
@@ -34,6 +37,10 @@ resource "aws_wafv2_ip_set" "admin_allowlist" {
 # Web ACL
 # ---------------------------------------------------------------------------
 resource "aws_wafv2_web_acl" "secureshop" {
+  # awsstudent is permanently denied wafv2:CreateWebACL by Academy lab_policy.
+  # Create via AWS Console (LabRole has WAF permissions), then import.
+  count = 0
+
   name        = "secureshop-web-acl"
   scope       = "REGIONAL"
   description = "SecureShop WAF: blocks SQLi, XSS, bad inputs and rate-limits requests."
@@ -353,10 +360,12 @@ resource "aws_cloudwatch_log_group" "waf_logs" {
 }
 
 resource "aws_wafv2_web_acl_logging_configuration" "secureshop" {
-  log_destination_configs = [aws_cloudwatch_log_group.waf_logs.arn]
-  resource_arn            = aws_wafv2_web_acl.secureshop.arn
+  # Disabled – depends on aws_wafv2_web_acl.secureshop (count = 0)
+  count = 0
 
-  # Redact sensitive headers before logging
+  log_destination_configs = [aws_cloudwatch_log_group.waf_logs.arn]
+  resource_arn            = ""
+
   redacted_fields {
     single_header {
       name = "authorization"
@@ -374,16 +383,16 @@ resource "aws_wafv2_web_acl_logging_configuration" "secureshop" {
 # Outputs – consumed by Member 2 to attach WAF to their ALB
 # ---------------------------------------------------------------------------
 output "waf_web_acl_id" {
-  description = "ID of the WAF Web ACL (use when associating with ALB via console)"
-  value       = aws_wafv2_web_acl.secureshop.id
+  description = "ID of the WAF Web ACL (created via Console; import with: terraform import aws_wafv2_web_acl.secureshop[0] <id>/<name>/REGIONAL)"
+  value       = "N/A – WAF created via Console (Academy lab_policy blocks wafv2:CreateWebACL)"
 }
 
 output "waf_web_acl_arn" {
-  description = "ARN of the WAF Web ACL (use with aws_wafv2_web_acl_association)"
-  value       = aws_wafv2_web_acl.secureshop.arn
+  description = "ARN of the WAF Web ACL"
+  value       = "N/A – WAF created via Console"
 }
 
 output "waf_web_acl_capacity" {
   description = "Total WCU capacity consumed by this Web ACL"
-  value       = aws_wafv2_web_acl.secureshop.capacity
+  value       = "N/A – WAF created via Console"
 }
