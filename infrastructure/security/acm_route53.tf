@@ -96,7 +96,6 @@ resource "aws_acm_certificate_validation" "secureshop" {
 #   }
 # }
 
-# # www → apex alias
 # resource "aws_route53_record" "app_www_alias" {
 #   count = var.hosted_zone_id != "" ? 1 : 0
 #

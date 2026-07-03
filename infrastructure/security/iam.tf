@@ -52,9 +52,12 @@ data "aws_iam_instance_profile" "lab_instance_profile" {
 # NOTE: aws_iam_instance_profile_association requires the instance to exist
 #       and the profile to be created first.  Run `terraform apply` after
 #       Member 2 has deployed their instances.
+# The AWS provider for this workspace does not expose an EC2 instance profile
+# association resource. Keep the data lookup for validation and wire the
+# instance profile at launch time instead.
 # resource "aws_iam_instance_profile_association" "app_server_profile" {
-#   instance_id  = data.aws_instance.app_server.id
-#   iam_arn      = aws_iam_instance_profile.lab_instance_profile.arn
+#   instance_id = data.aws_instance.app_server.id
+#   iam_arn     = aws_iam_instance_profile.lab_instance_profile.arn
 # }
 
 # ---------------------------------------------------------------------------

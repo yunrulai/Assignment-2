@@ -21,8 +21,7 @@ resource "aws_wafv2_ip_set" "admin_allowlist" {
   ip_address_version = "IPV4"
 
   addresses = [
-    "10.0.0.0/8",
-    "172.16.0.0/12"
+    "${var.bastion_host}/32"
   ]
 
   tags = {
@@ -327,9 +326,7 @@ resource "aws_wafv2_web_acl" "secureshop" {
 
 # ---------------------------------------------------------------------------
 # Attach Web ACL to Member 2's Application Load Balancer
-# ISOLATED DEMO: these two blocks are commented out so this module can be
-# applied in a standalone sandbox without Member 2's ALB present.
-# Un-comment for the integrated (full-team) deployment.
+# Full sandbox deployment: attach the Web ACL to the ALB discovered by tag.
 # ---------------------------------------------------------------------------
 
 # data "aws_lb" "app" {
@@ -340,7 +337,7 @@ resource "aws_wafv2_web_acl" "secureshop" {
 
 # resource "aws_wafv2_web_acl_association" "alb" {
 #   resource_arn = data.aws_lb.app.arn
-#   web_acl_arn  = aws_wafv2_web_acl.secureshop.arn
+#   web_acl_arn  = aws_wafv2_web_acl.secureshop[0].arn
 # }
 
 # ---------------------------------------------------------------------------

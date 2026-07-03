@@ -161,7 +161,6 @@ resource "aws_db_instance" "secure_shop" {
   monitoring_interval          = 0
   apply_immediately            = true
   copy_tags_to_snapshot        = true
-  manage_master_user_password  = false
 
   tags = {
     Name       = "SecureShop-RDS-SQLServer"

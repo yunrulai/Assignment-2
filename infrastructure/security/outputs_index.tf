@@ -15,6 +15,13 @@
 # ec2_public_dns             → demo instance public DNS                (ec2.tf)
 # ec2_security_group_id      → SG attached to demo EC2                 (ec2.tf)
 
+# --- RDS / KMS -----------------------------------------------------------
+# rds_kms_key_arn            → KMS key ARN for RDS encryption          (rds_kms.tf)
+# rds_kms_alias_name         → friendly KMS alias                       (rds_kms.tf)
+# rds_instance_endpoint      → RDS endpoint host                        (rds_kms.tf)
+# rds_instance_port          → RDS endpoint port                        (rds_kms.tf)
+# rds_instance_identifier    → RDS DB identifier                        (rds_kms.tf)
+
 # --- CloudTrail ----------------------------------------------------------
 # cloudtrail_trail_arn       → trail ARN                               (cloudtrail.tf)
 # cloudtrail_s3_bucket_name  → log bucket name                         (cloudtrail.tf)
