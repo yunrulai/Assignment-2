@@ -1,0 +1,13 @@
+# Terraform variable values
+# Copy this file to terraform.tfvars and fill in real values before running.
+# NEVER commit terraform.tfvars with real credentials to source control.
+
+aws_region = "us-east-1"
+
+# ACM / Route 53
+# Set domain_name to the domain you own (or leave the default for lab demos)
+domain_name = "secureshop.example.com"
+
+# Set hosted_zone_id to your Route 53 Hosted Zone ID to enable DNS validation
+# and alias records.  Leave empty ("") to skip Route 53 resources.
+hosted_zone_id = ""
