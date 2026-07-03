@@ -33,7 +33,9 @@ terraform {
 # AWS CLI profile set up in the Academy lab session.
 # ---------------------------------------------------------------------------
 provider "aws" {
-  region = var.aws_region
+  region     = var.aws_region
+  access_key = var.aws_access_key
+  secret_key = var.aws_secret_key
 
   default_tags {
     tags = {
@@ -52,6 +54,26 @@ variable "aws_region" {
   description = "AWS region to deploy into"
   type        = string
   default     = "us-east-1"
+}
+
+variable "aws_access_key" {
+  description = "AWS access key ID (use environment variable or AWS CLI in production)"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "aws_secret_key" {
+  description = "AWS secret access key (use environment variable or AWS CLI in production)"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "bastion_host" {
+  description = "Public IP of the bastion host (used for WAF IP allow-list)"
+  type        = string
+  default     = ""
 }
 
 # ---------------------------------------------------------------------------

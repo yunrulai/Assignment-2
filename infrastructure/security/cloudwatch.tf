@@ -37,16 +37,18 @@ data "aws_iam_role" "cloudwatch_logs_role" {
 # Wire CloudTrail to the CloudWatch Log Group
 # ---------------------------------------------------------------------------
 resource "aws_cloudtrail" "secureshop_cw" {
-  # This resource augments the trail defined in cloudtrail.tf.
-  # Terraform will try to CREATE a second trail – to avoid duplication use
-  # a separate trail name dedicated to CloudWatch forwarding, or merge this
-  # block into cloudtrail.tf.  Kept separate here for clarity.
+  # AWS Academy lab_policy blocks iam:PassRole, which is required to attach
+  # a CloudWatch Logs role to a CloudTrail trail.
+  # The main trail (secureshop-management-trail in cloudtrail.tf) already captures
+  # all management events. Set count = 1 in a full AWS account with PassRole rights.
+  count = 0
+
   name                          = "secureshop-cw-trail"
-  s3_bucket_name                = aws_s3_bucket.cloudtrail_logs.id
+  s3_bucket_name                = data.aws_s3_bucket.cloudtrail_logs.id
   cloud_watch_logs_group_arn    = "${aws_cloudwatch_log_group.cloudtrail.arn}:*"
   cloud_watch_logs_role_arn     = data.aws_iam_role.cloudwatch_logs_role.arn
   include_global_service_events = true
-  is_multi_region_trail         = false # a single-region trail is sufficient for CW
+  is_multi_region_trail         = false
   enable_log_file_validation    = true
 
   event_selector {
@@ -210,7 +212,8 @@ resource "aws_cloudwatch_dashboard" "security" {
         width  = 8
         height = 6
         properties = {
-          title  = "Unauthorized API Calls"
+          title   = "Unauthorized API Calls"
+          region  = var.aws_region
           metrics = [
             ["SecureShop/Security", "UnauthorizedAPICallCount"]
           ]
@@ -226,7 +229,8 @@ resource "aws_cloudwatch_dashboard" "security" {
         width  = 8
         height = 6
         properties = {
-          title  = "Root Account Usage"
+          title   = "Root Account Usage"
+          region  = var.aws_region
           metrics = [
             ["SecureShop/Security", "RootAccountUsageCount"]
           ]
@@ -242,7 +246,8 @@ resource "aws_cloudwatch_dashboard" "security" {
         width  = 8
         height = 6
         properties = {
-          title  = "Console Login Failures"
+          title   = "Console Login Failures"
+          region  = var.aws_region
           metrics = [
             ["SecureShop/Security", "ConsoleLoginFailureCount"]
           ]
