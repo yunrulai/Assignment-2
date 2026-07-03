@@ -9,6 +9,12 @@
 # lab_instance_profile_arn   → instance profile ARN                    (iam.tf)
 # lab_instance_profile_name  → profile name for EC2 launch config      (iam.tf)
 
+# --- EC2 -----------------------------------------------------------------
+# ec2_instance_id            → demo EC2 identifier                     (ec2.tf)
+# ec2_public_ip              → demo instance public IP                 (ec2.tf)
+# ec2_public_dns             → demo instance public DNS                (ec2.tf)
+# ec2_security_group_id      → SG attached to demo EC2                 (ec2.tf)
+
 # --- CloudTrail ----------------------------------------------------------
 # cloudtrail_trail_arn       → trail ARN                               (cloudtrail.tf)
 # cloudtrail_s3_bucket_name  → log bucket name                         (cloudtrail.tf)
